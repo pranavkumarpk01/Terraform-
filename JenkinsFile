@@ -28,11 +28,11 @@ pipeline {
         
         stage('Terraform Plan') {
             steps {
-                dir('TERRAFORM') {
+               
                     script {
                         sh 'terraform plan -out=tfplan'
                     }
-                }
+                
             }
         }
         
