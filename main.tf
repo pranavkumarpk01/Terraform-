@@ -10,10 +10,7 @@ terraform {
 
 provider "azurerm" {
   features {}
- azure_subscription_id
- azure_client_id
- azure_client_Secret
- azure_tenant_id = secrets.azure_tenant_id
+ 
 }
 #creating a resource group
 resource "azurerm_resource_group" "resource_group_test" {
