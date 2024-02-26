@@ -1,13 +1,12 @@
 pipeline {
-
     parameters {
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
     } 
     environment {
-       azure_subscription_id = credentials('azure_subscription_id')
-       azure_client_id  = credentials('azure_client_id ')
-       azure_client_secret  = credentials('azure_client_secret')
-       azure_tenant_id = credentials('azure_tenant_id ')
+        azure_subscription_id = credentials('azure_subscription_id')
+        azure_client_id  = credentials('azure_client_id ')
+        azure_client_secret  = credentials('azure_client_secret')
+        azure_tenant_id = credentials('azure_tenant_id ')
     }
 
     agent any
@@ -15,20 +14,26 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-                script{
-                        dir("terraform")
-                        {
-                            git "https://github.com/pranavkumarpk01/Terraform-.git"
-                        }
+                script {
+                    dir("terraform") {
+                        git "https://github.com/pranavkumarpk01/Terraform-.git"
+                    }
                 }
             }
         }
 
         stage('Plan') {
             steps {
-                sh 'pwd;cd terraform/ ; terraform init'
-                sh 'pwd;cd terraform/ ; terraform plan -out tfplan'
-                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
+                script {
+                    sh "cd terraform/ ; \
+                        export ARM_SUBSCRIPTION_ID=${azure_subscription_id} ; \
+                        export ARM_CLIENT_ID=${azure_client_id} ; \
+                        export ARM_CLIENT_SECRET=${azure_client_secret} ; \
+                        export ARM_TENANT_ID=${azure_tenant_id} ; \
+                        terraform init ; \
+                        terraform plan -out tfplan ; \
+                        terraform show -no-color tfplan > tfplan.txt"
+                }
             }
         }
 
@@ -50,7 +55,14 @@ pipeline {
 
         stage('Apply') {
             steps {
-                sh 'cd terraform/ ; terraform apply -input=false tfplan'
+                script {
+                    sh "cd terraform/ ; \
+                        export ARM_SUBSCRIPTION_ID=${azure_subscription_id} ; \
+                        export ARM_CLIENT_ID=${azure_client_id} ; \
+                        export ARM_CLIENT_SECRET=${azure_client_secret} ; \
+                        export ARM_TENANT_ID=${azure_tenant_id} ; \
+                        terraform apply -input=false tfplan"
+                }
             }
         }
     }
