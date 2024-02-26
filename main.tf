@@ -6,10 +6,7 @@ terraform {
     }
   }
 }
-variable "azure_subscription_id" {}
-variable "azure_client_id" {}
-variable "azure_client_Secret" {}
-variable "azure_tenant_id" {}
+
 
 provider "azurerm" {
   features {}
