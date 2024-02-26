@@ -18,12 +18,12 @@ pipeline {
         
         stage('Terraform Init') {
             steps {
-                dir('TERRAFORM') {
+                
                     script {
                         sh 'terraform init'
                     }
                 }
-            }
+            
         }
         
         stage('Terraform Plan') {
@@ -38,12 +38,12 @@ pipeline {
         
         stage('Terraform Apply') {
             steps {
-                dir('TERRAFORM') {
+               
                     script {
                         sh 'terraform apply -auto-approve tfplan'
                     }
                 }
-            }
+            
         }
     }
     
