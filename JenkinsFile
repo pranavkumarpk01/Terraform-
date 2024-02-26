@@ -9,7 +9,7 @@ pipeline {
         AZURE_TENANT_ID       = credentials('azure_tenant_id')
     }
 
-     stages {
+    stages {
         stage('Checkout') {
             steps {
                 git 'https://github.com/pranavkumarpk01/Terraform-.git'
@@ -18,24 +18,30 @@ pipeline {
         
         stage('Terraform Init') {
             steps {
-                script {
-                    sh 'terraform init'
+                dir('TERRAFORM') {
+                    script {
+                        sh 'terraform init'
+                    }
                 }
             }
         }
         
         stage('Terraform Plan') {
             steps {
-                script {
-                    sh 'terraform plan -out=tfplan'
+                dir('TERRAFORM') {
+                    script {
+                        sh 'terraform plan -out=tfplan'
+                    }
                 }
             }
         }
         
         stage('Terraform Apply') {
             steps {
-                script {
-                    sh 'terraform apply -auto-approve tfplan'
+                dir('TERRAFORM') {
+                    script {
+                        sh 'terraform apply -auto-approve tfplan'
+                    }
                 }
             }
         }
