@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     // Load Terraform secrets from the tfvars file
-                    def tfvars = readTrusted('terraform/secrets.tfvars')
+                    def tfvars = readTrusted('TERRAFORM/secrets.tfvars')
 
                     // Set up Terraform environment variables
                     withEnv([
