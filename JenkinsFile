@@ -9,9 +9,14 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('checkout') {
             steps {
-                checkout scm
+                script {
+                    // Checkout your Terraform code
+                    dir("terraform") {
+                        git "https://github.com/pranavkumarpk01/Terraform-.git"
+                    }
+                }
             }
         }
 
