@@ -1,15 +1,4 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source = "hashicorp/azurerm"
-      version = "3.93.0"
-    }
-  }
-}
 
-provider "azurerm" {
-  features {}
-}
 #creating a resource group
 resource "azurerm_resource_group" "resource_group_test" {
     name = "rg-terraform-terra"
