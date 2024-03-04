@@ -15,11 +15,10 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-                script{
-                        dir("terraform")
-                        {
-                            git "https://github.com/pranavkumarpk01/Terraform-.git"
-                        }
+                script {
+                    dir("terraform") {
+                        git "https://github.com/pranavkumarpk01/Terraform-.git"
+                    }
                 }
             }
         }
@@ -31,7 +30,6 @@ pipeline {
                 sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
             }
         }
-      
 
         stage('Approval') {
             when {
@@ -53,6 +51,12 @@ pipeline {
             steps {
                 sh 'cd terraform/ ; terraform apply -input=false tfplan'
             }
+        }
+    }
+    
+    post {
+        always {
+            sh 'cd terraform/ ; terraform destroy -auto-approve'
         }
     }
 }
