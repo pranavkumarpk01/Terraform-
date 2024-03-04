@@ -2,20 +2,20 @@ pipeline {
     agent any
     
     environment {
-        AZURE_SUBSCRIPTION_ID = credentials('azure_subscription_id')
-        AZURE_CLIENT_ID = credentials('azure_client_id')
-        AZURE_CLIENT_SECRET = credentials('azure_client_secret')
-        AZURE_TENANT_ID = credentials('azure_tenant_id')
+        azure_subscription_id = credentials('azure_subscription_id')
+        azure_client_id = credentials('azure_client_id')
+        azure_client_secret = credentials('azure_client_secret')
+        azure_tenant_id = credentials('azure_tenant_id')
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'AZURE_SUBSCRIPTION_ID'),
-                                     string(credentialsId: 'azure_client_id', variable: 'AZURE_CLIENT_ID'),
-                                     string(credentialsId: 'azure_client_secret', variable: 'AZURE_CLIENT_SECRET'),
-                                     string(credentialsId: 'azure_tenant_id', variable: 'AZURE_TENANT_ID')]) {
+                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'azure_subscription_id'),
+                                     string(credentialsId: 'azure_client_id', variable: 'azure_client_id'),
+                                     string(credentialsId: 'azure_client_secret', variable: 'azure_client_secret'),
+                                     string(credentialsId: 'azure_tenant_id', variable: 'azure_tenant_id')]) {
                         dir("terraform") {
                             git "https://github.com/pranavkumarpk01/Terraform-.git"
                         }
@@ -27,10 +27,10 @@ pipeline {
         stage('Plan') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'AZURE_SUBSCRIPTION_ID'),
-                                     string(credentialsId: 'azure_client_id', variable: 'AZURE_CLIENT_ID'),
-                                     string(credentialsId: 'azure_client_secret', variable: 'AZURE_CLIENT_SECRET'),
-                                     string(credentialsId: 'azure_tenant_id', variable: 'AZURE_TENANT_ID')]) {
+                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'azure_subscription_id'),
+                                     string(credentialsId: 'azure_client_id', variable: 'azure_client_id'),
+                                     string(credentialsId: 'azure_client_secret', variable: 'azure_client_secret'),
+                                     string(credentialsId: 'azure_tenant_id', variable: 'azure_tenant_id')]) {
                         sh 'cd terraform/ ; terraform init'
                         sh 'cd terraform/ ; terraform plan -out tfplan'
                         sh 'cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
@@ -58,10 +58,10 @@ pipeline {
         stage('Apply') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'AZURE_SUBSCRIPTION_ID'),
-                                     string(credentialsId: 'azure_client_id', variable: 'AZURE_CLIENT_ID'),
-                                     string(credentialsId: 'azure_client_secret', variable: 'AZURE_CLIENT_SECRET'),
-                                     string(credentialsId: 'azure_tenant_id', variable: 'AZURE_TENANT_ID')]) {
+                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'azure_subscription_id'),
+                                     string(credentialsId: 'azure_client_id', variable: 'azure_client_id'),
+                                     string(credentialsId: 'azure_client_secret', variable: 'azure_client_secret'),
+                                     string(credentialsId: 'azure_tenant_id', variable: 'azure_tenant_id')]) {
                         sh 'cd terraform/ ; terraform apply -input=false tfplan'
                     }
                 }
