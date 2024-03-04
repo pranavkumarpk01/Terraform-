@@ -1,13 +1,12 @@
 pipeline {
-
     parameters {
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
     } 
     environment {
-       azure_subscription_id = credentials('azure_subscription_id')
-       azure_client_id  = credentials('azure_client_id ')
-       azure_client_secret  = credentials('azure_client_secret')
-       azure_tenant_id = credentials('azure_tenant_id ')
+        azure_subscription_id = credentials('azure_subscription_id')
+        azure_client_id  = credentials('azure_client_id')
+        azure_client_secret  = credentials('azure_client_secret')
+        azure_tenant_id = credentials('azure_tenant_id')
     }
 
     agent any
@@ -25,9 +24,11 @@ pipeline {
 
         stage('Plan') {
             steps {
-                sh 'pwd;cd terraform/ ; terraform init'
-                sh 'pwd;cd terraform/ ; terraform plan -out tfplan'
-                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
+                withCredentials([usernamePassword(credentialsId: 'azure_credentials', usernameVariable: 'AZURE_USERNAME', passwordVariable: 'AZURE_PASSWORD')]) {
+                    sh 'pwd;cd terraform/ ; terraform init'
+                    sh 'pwd;cd terraform/ ; terraform plan -out tfplan'
+                    sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
+                }
             }
         }
 
@@ -49,14 +50,18 @@ pipeline {
 
         stage('Apply') {
             steps {
-                sh 'cd terraform/ ; terraform apply -input=false tfplan'
+                withCredentials([usernamePassword(credentialsId: 'azure_credentials', usernameVariable: 'AZURE_USERNAME', passwordVariable: 'AZURE_PASSWORD')]) {
+                    sh 'cd terraform/ ; terraform apply -input=false tfplan'
+                }
             }
         }
     }
     
     post {
         always {
-            sh 'cd terraform/ ; terraform destroy -auto-approve'
+            withCredentials([usernamePassword(credentialsId: 'azure_credentials', usernameVariable: 'AZURE_USERNAME', passwordVariable: 'AZURE_PASSWORD')]) {
+                sh 'cd terraform/ ; terraform destroy -auto-approve'
+            }
         }
     }
 }
