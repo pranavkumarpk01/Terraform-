@@ -1,7 +1,7 @@
 
 #creating a resource group
 resource "azurerm_resource_group" "resource_group_test" {
-    name = "rg-terraform-terra"
+    name = "rg-terraform-testtt"
     location = "South India"
   }
 #creating a storage acccount
