@@ -9,7 +9,7 @@ terraform {
 
 provider "azurerm" {
   features {}
-  tenant_id = "YOUR_AZURE_TENANT_ID"
+  tenant_id = "azure_tenant_id"
 }
 
 resource "azurerm_resource_group" "resource_group_te" {
