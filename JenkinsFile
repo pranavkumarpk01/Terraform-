@@ -1,77 +1,57 @@
 pipeline {
     agent any
-    
+
     environment {
-        azure_subscription_id = credentials('azure_subscription_id')
-        azure_client_id = credentials('azure_client_id')
-        azure_client_secret = credentials('azure_client_secret')
-        azure_tenant_id = credentials('azure_tenant_id')
+        ARM_CLIENT_ID = credentials('ARM_CLIENT_ID')
+        ARM_CLIENT_SECRET = credentials('ARM_CLIENT_SECRET')
+        ARM_TENANT_ID = credentials('ARM_TENANT_ID')
+        ARM_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
     }
 
     stages {
-        stage('Checkout') {
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+
+        stage('Terraform Plan') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'azure_subscription_id'),
-                                     string(credentialsId: 'azure_client_id', variable: 'azure_client_id'),
-                                     string(credentialsId: 'azure_client_secret', variable: 'azure_client_secret'),
-                                     string(credentialsId: 'azure_tenant_id', variable: 'azure_tenant_id')]) {
-                        dir("terraform") {
-                            git "https://github.com/pranavkumarpk01/Terraform-.git"
-                        }
-                    }
+                    sh 'terraform plan -out=tfplan'
+                    sh 'terraform show -json tfplan > tfplan.json'
                 }
             }
         }
 
-        stage('Plan') {
+        stage('Review Terraform Plan') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'azure_subscription_id'),
-                                     string(credentialsId: 'azure_client_id', variable: 'azure_client_id'),
-                                     string(credentialsId: 'azure_client_secret', variable: 'azure_client_secret'),
-                                     string(credentialsId: 'azure_tenant_id', variable: 'azure_tenant_id')]) {
-                        sh 'cd terraform/ ; terraform init'
-                        sh 'cd terraform/ ; terraform plan -out tfplan'
-                        sh 'cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
-                    }
+                    def planOutput = readFile 'tfplan.json'
+                    echo planOutput
+                    input message: "Review the plan before proceeding",
+                          parameters: [text(name: 'Plan', description: 'Terraform plan', defaultValue: planOutput)]
                 }
             }
         }
 
-        stage('Approval') {
-            when {
-                not {
-                    equals expected: true, actual: params.autoApprove
-                }
-            }
-
+        stage('Apply Terraform Plan') {
             steps {
                 script {
-                    def plan = readFile 'terraform/tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                          parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                    sh 'terraform apply tfplan'
                 }
             }
         }
 
-        stage('Apply') {
+        stage('Destroy Infrastructure') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'azure_subscription_id', variable: 'azure_subscription_id'),
-                                     string(credentialsId: 'azure_client_id', variable: 'azure_client_id'),
-                                     string(credentialsId: 'azure_client_secret', variable: 'azure_client_secret'),
-                                     string(credentialsId: 'azure_tenant_id', variable: 'azure_tenant_id')]) {
-                        sh 'cd terraform/ ; terraform apply -input=false tfplan'
-                    }
+                    input message: "Are you sure you want to destroy the infrastructure?",
+                          ok: "Destroy",
+                          parameters: [choice(name: 'Confirmation', choices: 'Destroy')]
+                    sh 'terraform destroy -auto-approve'
                 }
             }
-        }
-    }
-    
-    post {
-        always {
-            sh 'cd terraform/ ; terraform destroy -auto-approve'
         }
     }
 }
