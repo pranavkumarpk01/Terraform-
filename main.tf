@@ -8,6 +8,7 @@ terraform {
 }
 provider "azurerm" {
   features {}
+  tenant_id: 4e206028-4f53-4bca-8da1-7aa67e5e5fb6
 }
 
 resource "azurerm_resource_group" "resource_group_te" {
